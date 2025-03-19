@@ -1,0 +1,75 @@
+.container{
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    padding-top: 80px;
+
+}
+
+
+.formularioContainer{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.formulario{
+    gap: 5px;
+    display: flex;
+    flex-direction: column;
+    width: 300%;
+    background-color: #851313;
+    padding: 20px;
+    padding-bottom: 25px;
+    border-radius: 10px;
+    border: 1px solid black;
+    max-width: 400%;
+
+    & h1{
+        font-size: 35px;
+        gap: 10px;
+        margin: auto;
+    }
+}
+
+.inputLogin{
+    border: 1px solid black;
+    background-color: #945454;
+    height: 28px;
+    padding-left: 10px;
+    border-radius: 5px;
+    color: black;
+}
+
+.inputLogin::placeholder{
+    color: #fff;
+    opacity: 0.6;
+}
+
+#AcessosTipos{
+    display: flex;
+    align-items: end;
+    gap: 15px;
+    margin-top: 5px;
+    width: 570px;
+
+    & p:hover{
+        color: black;
+        font-weight: 800;
+    }
+}
+
+
+#BotaoEntrar{
+    margin-top: 10px;
+    display: flex;
+    align-items: end;
+    
+}
+#logoLogin {
+    max-width: 125px;
+    max-height: 125px;
+    width: auto;
+    height: auto;
+}
