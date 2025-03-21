@@ -2,22 +2,34 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import "./Style.css";
 
-const Login: React.FC = () => {
+const Account: React.FC = () => {
+  const [name, setName] = useState<string>("");
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    console.log("Nome:", name);
     console.log("Email:", email);
     console.log("Senha:", password);
   };
 
   return (
     <div className="container">
-      <section className="formularioContainer" id="FormularioLogin">
-        <img className="logo" id="logoLogin" src="/logoAp.png" alt="Logo" />
-        <form className="formulario" id="loginForm" onSubmit={handleSubmit}>
-          <h1>Login</h1>
+      <section className="formularioContainer" id="FormularioAccount">
+        <img className="logo" id="logoAccount" src="/logoAp.png" alt="Logo" />
+        <form className="formulario" id="AccountForm" onSubmit={handleSubmit}>
+          <h1>Criar Conta</h1>
+
+          <label htmlFor="nomeCompleto">Nome Completo</label>
+          <input
+            id="nomeCompleto"
+            className="inputAccount"
+            placeholder="Seu Nome Completo"
+            type="text"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+          />
 
           <label htmlFor="email">E-mail</label>
           <input
@@ -42,17 +54,17 @@ const Login: React.FC = () => {
       </section>
 
       <div className="recursos" id="AcessosTipos">
-        <Link to="/account">
-          <p>Criar Conta</p>
+        <Link to="/login">
+        <p>Login</p>
         </Link>
         <p>Esqueci a Senha</p>
       </div>
 
-      <button type="submit" id="BotaoEntrar" form="loginForm">
-        Entrar
+      <button type="submit" id="BotaoCriarConta" form="AccountForm">
+        Criar Conta
       </button>
     </div>
   );
 };
 
-export default Login;
+export default Account;

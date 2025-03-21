@@ -1,21 +1,21 @@
-.container{
+
+  
+  .container {
     display: flex;
-    align-items: center;
     flex-direction: column;
+    align-items: center;
     padding-top: 1vw;
     width: 100%;
-}
-
-
-.formularioContainer{
+  }
+  
+  .formularioContainer {
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 10px;
-}
-
- 
-.formulario {
+  }
+  
+  .formulario {
     display: flex;
     flex-direction: column;
     width: 33vw; 
@@ -27,58 +27,57 @@
     border-radius: 10px;
     border: 1px solid black;
   }
-
+  
   .formulario h1 {
     font-size: 35px;
     margin-bottom: 10px;
     text-align: center;
   }
-
+  
   .formulario label {
     font-size: 20px;
     font-weight: 800;
     margin: 5px 0px;
   }
 
-.inputLogin{
+  .inputAccount {
     border: 1px solid black;
     background-color: #945454;
     height: 28px;
     padding-left: 10px;
     border-radius: 5px;
-    color: black;
-}
-
-.inputLogin::placeholder{
+    color: white;
+  }
+  
+  .inputAccount::placeholder {
     color: #fff;
     opacity: 0.6;
-}
-
-#AcessosTipos{
+  }
+  
+  #AcessosTipos {
     display: flex;
-    align-items: end;
-    gap: 15px;
+    justify-content: space-between;
+    width: 100%;
+    max-width: 450px;
     margin-top: 5px;
-    width: 570px;
-
-    & p:hover{
-        color: black;
-        font-weight: 800;
-    }
-}
-
-
-#BotaoEntrar{
+  }
+  
+  #AcessosTipos p:hover {
+    color: black;
+    font-weight: 800;
+  }
+  
+  #BotaoCriarConta {
     margin-top: 10px;
     width: 100%;
     max-width: 450px;
     display: flex;
     justify-content: center;
     align-items: center;
-    
-}
-
-#logoLogin {
+  }
+  
+  
+#logoAccount {
     max-width: 125px;
     max-height: 125px;
     width: auto;
