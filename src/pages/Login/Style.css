@@ -28,6 +28,28 @@
     border: 1px solid black;
   }
 
+  #BotaoEntrar:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+  }
+  
+  .loading-spinner {
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid #3498db;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    animation: spin 1s linear infinite;
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 8px;
+  }
+  
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+
   .formulario h1 {
     font-size: 35px;
     margin-bottom: 10px;

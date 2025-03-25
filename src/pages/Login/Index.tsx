@@ -1,15 +1,45 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import "./Style.css";
+import api from "../../Api/api";
+
+interface LoginDto {
+  email: string;
+}
 
 const Login: React.FC = () => {
-  const [email, setEmail] = useState<string>("");
-  const [password, setPassword] = useState<string>("");
+  const [loginData, setLoginData] = useState<LoginDto>({ email: "" });
+  const [error, setError] = useState<string>("");
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const navigate = useNavigate();
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { value } = e.target;
+    setLoginData({ email: value });
+  };
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    console.log("Email:", email);
-    console.log("Senha:", password);
+    setError("");
+    setIsLoading(true);
+
+    try {
+      const response = await api.post("/usuarios/login", loginData);
+      
+      if (response.status === 200) {
+        localStorage.setItem("userEmail", loginData.email);
+        navigate("/home");
+      }
+    } catch (err: any) {
+      if (err.response?.status === 401) {
+        setError("E-mail não cadastrado");
+      } else {
+        setError("Erro ao conectar com o servidor");
+      }
+      console.error("Erro no login:", err);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -19,24 +49,17 @@ const Login: React.FC = () => {
         <form className="formulario" id="loginForm" onSubmit={handleSubmit}>
           <h1>Login</h1>
 
+          {error && <div className="error-message">{error}</div>}
+
           <label htmlFor="email">E-mail</label>
           <input
             id="email"
             className="inputAccount"
             placeholder="usuario@gmail.com"
             type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-
-          <label htmlFor="senha">Senha</label>
-          <input
-            id="senha"
-            className="inputAccount"
-            placeholder="Senha!forte180"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            value={loginData.email}
+            onChange={handleChange}
+            required
           />
         </form>
       </section>
@@ -45,11 +68,15 @@ const Login: React.FC = () => {
         <Link to="/account">
           <p>Criar Conta</p>
         </Link>
-        <p>Esqueci a Senha</p>
       </div>
 
-      <button type="submit" id="BotaoEntrar" form="loginForm">
-        Entrar
+      <button 
+        type="submit" 
+        id="BotaoEntrar" 
+        form="loginForm"
+        disabled={isLoading}
+      >
+        {isLoading ? "Carregando..." : "Entrar"}
       </button>
     </div>
   );

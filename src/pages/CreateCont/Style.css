@@ -14,6 +14,16 @@
     align-items: center;
     gap: 10px;
   }
+
+  .error-message {
+    color: #ffeb3b;
+    background-color: #d32f2f;
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 15px;
+    text-align: center;
+    font-weight: bold;
+  }
   
   .formulario {
     display: flex;
