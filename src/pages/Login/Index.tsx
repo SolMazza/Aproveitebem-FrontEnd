@@ -28,6 +28,7 @@ const Login: React.FC = () => {
       
       if (response.status === 200) {
         localStorage.setItem("userEmail", loginData.email);
+        localStorage.setItem('usuarioId', response.data.id);
         navigate("/home");
       }
     } catch (err: any) {

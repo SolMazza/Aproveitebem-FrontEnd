@@ -1,83 +1,209 @@
 import { useState, useEffect } from 'react';
-import "./Style.css"
+import "./Style.css";
+import { Link } from 'react-router-dom';
+import api from '../../Api/api';
 
-function ListaCompra({ usuarioId }) {
-    const [produtos, setProdutos] = useState([]);
-    const [novoProduto, setNovoProduto] = useState({ nome: "", quantidade: 1 });
+interface ItemLista {
+    id: number;
+    nome: string;
+    quantidade: number;
+}
+
+interface NovoItemLista {
+    nome: string;
+    quantidade: number;
+}
+
+const ItemProduto = ({ produto, onRemove }: { produto: ItemLista, onRemove: (id: number) => void }) => (
+    <div className="listaDeCompra">
+        <section className="ItemLista">
+            <h2>{produto.nome}</h2>
+            <h2>Quantidade: {produto.quantidade}</h2>
+            <button 
+                className="remove-button"
+                onClick={() => onRemove(produto.id)}
+            >
+                Remover
+            </button>
+        </section>
+    </div>
+);
+
+const FormularioProduto = ({
+    produto,
+    onChange,
+    onConfirm,
+    onCancel,
+    isLoading
+}: {
+    produto: NovoItemLista;
+    onChange: (produto: NovoItemLista) => void;
+    onConfirm: () => void;
+    onCancel: () => void;
+    isLoading: boolean;
+}) => (
+    <div className="formularioAdicionar">
+        <input
+            type="text"
+            placeholder="Nome do Produto"
+            value={produto.nome}
+            onChange={(e) => onChange({ ...produto, nome: e.target.value })}
+            disabled={isLoading}
+        />
+        <input
+            type="number"
+            min="1"
+            placeholder="Quantidade"
+            value={produto.quantidade}
+            onChange={(e) => onChange({ ...produto, quantidade: Number(e.target.value) || 1 })}
+            disabled={isLoading}
+        />
+        <button onClick={onConfirm} disabled={isLoading}>
+            {isLoading ? "Salvando..." : "Confirmar"}
+        </button>
+        <button onClick={onCancel} disabled={isLoading}>
+            Cancelar
+        </button>
+    </div>
+);
+
+function ListaCompra() {
+    const [produtos, setProdutos] = useState<ItemLista[]>([]);
+    const [novoProduto, setNovoProduto] = useState<NovoItemLista>({ nome: "", quantidade: 1 });
     const [mostrarFormulario, setMostrarFormulario] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+    const [isLoading, setIsLoading] = useState(false);
+    const [usuarioId, setUsuarioId] = useState<number | null>(null);
 
     useEffect(() => {
-        fetch(`/usuarios/${usuarioId}/carrinho/produtos`)
-            .then((response) => response.json())
-            .then((data) => setProdutos(data))
-            .catch((error) => console.error("Erro ao carregar produtos:", error));
+        const id = localStorage.getItem('usuarioId');
+        if (id) {
+            setUsuarioId(Number(id));
+        }
+    }, []);
+
+    useEffect(() => {
+        if (!usuarioId) return;
+
+        const carregarProdutos = async () => {
+            try {
+                setIsLoading(true);
+                const response = await api.get(`/usuarios/${usuarioId}/carrinho/produtos`);
+                setProdutos(response.data);
+                setError(null);
+            } catch (err) {
+                setError("Falha ao carregar lista de compras");
+                console.error("Erro ao carregar produtos:", err);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        carregarProdutos();
     }, [usuarioId]);
 
     const adicionarProduto = async () => {
-        if (!novoProduto.nome || novoProduto.quantidade <= 0) {
-            alert("Por favor, preencha o nome e a quantidade do produto.");
+        if (!usuarioId) {
+            setError("Usuário não identificado");
             return;
         }
 
+        if (!novoProduto.nome.trim()) {
+            setError("O nome do produto é obrigatório");
+            return;
+        }
+
+        if (novoProduto.quantidade <= 0) {
+            setError("A quantidade deve ser maior que zero");
+            return;
+        }
+
+        setIsLoading(true);
         try {
-            const response = await fetch(`/usuarios/${usuarioId}/carrinho/produtos`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(novoProduto),
-            });
+            const response = await api.post(
+                `/usuarios/${usuarioId}/carrinho/produtos`,
+                novoProduto
+            );
+            
+            const produtoAdicionado = {
+                ...response.data,
+                id: Number(response.data.id)
+            };
+            
+            setProdutos((prevProdutos) => [...prevProdutos, produtoAdicionado]);
+            setNovoProduto({ nome: "", quantidade: 1 });
+            setMostrarFormulario(false);
+            setError(null);
+        }  catch (err) {
+            setError("Erro ao adicionar produto");
+            console.error("Erro ao adicionar produto:", err);
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
-            if (!response.ok) {
-                throw new Error('Erro ao adicionar produto');
-            }
+    const removerProduto = async (itemId: number) => {
+        if (!usuarioId) return;
 
-            const data = await response.json();
-            setProdutos([...produtos, data]); 
-            setNovoProduto({ nome: "", quantidade: 1 }); 
-            setMostrarFormulario(false); 
-        } catch (error) {
-            console.error("Erro:", error);
+        setIsLoading(true);
+        try {
+            await api.delete(`/usuarios/${usuarioId}/carrinho/produtos/${itemId}`);
+            setProdutos(produtos.filter(produto => produto.id !== itemId));
+            setError(null);
+        } catch (err) {
+            setError("Erro ao remover produto");
+            console.error("Erro ao remover produto:", err);
+        } finally {
+            setIsLoading(false);
         }
     };
 
     return (
         <div className="container">
-            <h1>Lista de Compras</h1>
+            <header className='Cabecalho'>
+                <Link to="/home">
+                    <img className="logo" id="logoAccount" src="/logoAp.png" alt="Logo" />
+                </Link>
+                <h1>Lista de Compras</h1>
+            </header>
+
+            {error && <div className="error-message">{error}</div>}
+
             <section className="ContainerLista">
-                {produtos.map((produto, index) => (
-                    <div className="listaDeCompra" key={index}>
-                        <section className="ItemLista">
-                            <h2>{produto.nome}</h2>
-                            <h2>Quantidade: {produto.quantidade}</h2>
-                        </section>
-                    </div>
-                ))}
+                {isLoading && produtos.length === 0 ? (
+                    <p>Carregando lista de compras...</p>
+                ) : produtos.length > 0 ? (
+                    produtos.map((produto) => (
+                        <ItemProduto 
+                            key={produto.id} 
+                            produto={produto} 
+                            onRemove={removerProduto}
+                        />
+                    ))
+                ) : (
+                    <p>Nenhum produto na lista</p>
+                )}
             </section>
 
             <section className="AdicionarItem">
                 {mostrarFormulario ? (
-                    <div className="formularioAdicionar">
-                        <input
-                            type="text"
-                            placeholder="Nome do Produto"
-                            value={novoProduto.nome}
-                            onChange={(e) => setNovoProduto({ ...novoProduto, nome: e.target.value })}
-                        />
-                        <input
-                            type="number"
-                            placeholder="Quantidade"
-                            value={novoProduto.quantidade}
-                            onChange={(e) =>
-                                setNovoProduto({ ...novoProduto, quantidade: parseInt(e.target.value) || 1 })
-                            }
-                        />
-                        <button onClick={adicionarProduto}>Confirmar</button>
-                        <button onClick={() => setMostrarFormulario(false)}>Cancelar</button>
-                    </div>
+                    <FormularioProduto
+                        produto={novoProduto}
+                        onChange={setNovoProduto}
+                        onConfirm={adicionarProduto}
+                        onCancel={() => {
+                            setMostrarFormulario(false);
+                            setError(null);
+                        }}
+                        isLoading={isLoading}
+                    />
                 ) : (
-                    <button id="BotaoAdicionar" onClick={() => setMostrarFormulario(true)}>
-                        Adicionar Item
+                    <button
+                        id="BotaoAdicionar"
+                        onClick={() => setMostrarFormulario(true)}
+                        disabled={isLoading}
+                    >
+                        {isLoading ? "Carregando..." : "Adicionar Item"}
                     </button>
                 )}
             </section>

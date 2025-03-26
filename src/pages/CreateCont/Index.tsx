@@ -27,14 +27,19 @@ const Account: React.FC = () => {
     setError("");
 
     try {
-      const response = await api.post("/usuarios/cadastrar", formData);
-      console.log("Cadastro realizado:", response.data);
-      navigate("/"); 
-    } catch (err) {
-      setError("Erro ao cadastrar. Verifique os dados e tente novamente.");
-      console.error("Erro no cadastro:", err);
+        const response = await api.post("/usuarios/cadastrar", {
+            nomeCompleto: formData.nomeCompleto,
+            email: formData.email,
+            senha: formData.senha
+        });
+        
+        console.log("Resposta completa:", response);
+        navigate("/");
+    } catch (err: any) {
+        console.error("Detalhes do erro:", err.response);
+        setError(err.response?.data?.message || "Erro ao cadastrar");
     }
-  };
+}
 
   return (
     <div className="container">
