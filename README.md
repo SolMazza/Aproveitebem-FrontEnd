@@ -1,5 +1,6 @@
 <h1>TCC APROIVETEBEM</h1>
 </br>
-<h3>Antonia Nascimento e Sol Mazzarolo</h3>
-
+<H2>PARA USAR:</H2>
+<br>
+Para usar é necessário estar com o back end(https://github.com/SolMazza/AproveitaBem/tree/main) rodando na máquina
 
