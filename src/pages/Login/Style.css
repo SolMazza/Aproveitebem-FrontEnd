@@ -84,7 +84,7 @@
     width: 570px;
 
     & p:hover{
-        color: black;
+        color: rgb(133, 1, 1);
         font-weight: 800;
     }
 }

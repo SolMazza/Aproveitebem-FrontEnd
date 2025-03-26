@@ -67,96 +67,72 @@ const FormularioProduto = ({
     </div>
 );
 
-function ListaCompra() {
+
+    function ListaCompra() {
     const [produtos, setProdutos] = useState<ItemLista[]>([]);
     const [novoProduto, setNovoProduto] = useState<NovoItemLista>({ nome: "", quantidade: 1 });
     const [mostrarFormulario, setMostrarFormulario] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
-    const [usuarioId, setUsuarioId] = useState<number | null>(null);
-
-    useEffect(() => {
-        const id = localStorage.getItem('usuarioId');
-        if (id) {
-            setUsuarioId(Number(id));
-        }
-    }, []);
-
-    useEffect(() => {
-        if (!usuarioId) return;
-
-        const carregarProdutos = async () => {
+    
+        useEffect(() => {
+            const carregarProdutos = async () => {
+                try {
+                    setIsLoading(true);
+                    const response = await api.get("/carrinho/itens");
+                    setProdutos(response.data);
+                    setError(null);
+                } catch (err) {
+                    setError("Falha ao carregar lista de compras");
+                    console.error("Erro ao carregar produtos:", err);
+                } finally {
+                    setIsLoading(false);
+                }
+            };
+    
+            carregarProdutos();
+        }, []);
+    
+        const adicionarProduto = async () => {
+            if (novoProduto.quantidade <= 0) { 
+                setError("A quantidade deve ser maior que zero");
+                return;
+            }
+            if (!novoProduto.nome.trim()) {
+                setError("O nome do produto é obrigatório");
+                return;
+            }
+    
+            setIsLoading(true);
             try {
-                setIsLoading(true);
-                const response = await api.get(`/usuarios/${usuarioId}/carrinho/produtos`);
-                setProdutos(response.data);
+                const response = await api.post("/carrinho/itens", novoProduto);
+                
+                setProdutos(prev => [...prev, response.data]);
+                setNovoProduto({ nome: "", quantidade: 1 });
+                setMostrarFormulario(false);
                 setError(null);
             } catch (err) {
-                setError("Falha ao carregar lista de compras");
-                console.error("Erro ao carregar produtos:", err);
+                setError("Erro ao adicionar produto");
+                console.error("Erro ao adicionar produto:", err);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+    
+        const removerProduto = async (itemId: number) => {
+            setIsLoading(true);
+            try {
+                await api.delete(`/carrinho/itens/${itemId}`);
+                setProdutos(produtos.filter(produto => produto.id !== itemId));
+                setError(null);
+            } catch (err) {
+                setError("Erro ao remover produto");
+                console.error("Erro ao remover produto:", err);
             } finally {
                 setIsLoading(false);
             }
         };
 
-        carregarProdutos();
-    }, [usuarioId]);
-
-    const adicionarProduto = async () => {
-        if (!usuarioId) {
-            setError("Usuário não identificado");
-            return;
-        }
-
-        if (!novoProduto.nome.trim()) {
-            setError("O nome do produto é obrigatório");
-            return;
-        }
-
-        if (novoProduto.quantidade <= 0) {
-            setError("A quantidade deve ser maior que zero");
-            return;
-        }
-
-        setIsLoading(true);
-        try {
-            const response = await api.post(
-                `/usuarios/${usuarioId}/carrinho/produtos`,
-                novoProduto
-            );
-            
-            const produtoAdicionado = {
-                ...response.data,
-                id: Number(response.data.id)
-            };
-            
-            setProdutos((prevProdutos) => [...prevProdutos, produtoAdicionado]);
-            setNovoProduto({ nome: "", quantidade: 1 });
-            setMostrarFormulario(false);
-            setError(null);
-        }  catch (err) {
-            setError("Erro ao adicionar produto");
-            console.error("Erro ao adicionar produto:", err);
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
-    const removerProduto = async (itemId: number) => {
-        if (!usuarioId) return;
-
-        setIsLoading(true);
-        try {
-            await api.delete(`/usuarios/${usuarioId}/carrinho/produtos/${itemId}`);
-            setProdutos(produtos.filter(produto => produto.id !== itemId));
-            setError(null);
-        } catch (err) {
-            setError("Erro ao remover produto");
-            console.error("Erro ao remover produto:", err);
-        } finally {
-            setIsLoading(false);
-        }
-    };
 
     return (
         <div className="container">

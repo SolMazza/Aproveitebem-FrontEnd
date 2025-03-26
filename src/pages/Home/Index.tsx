@@ -25,43 +25,33 @@ const Home = () => {
 
   useEffect(() => {
     const carregarPrateleiras = async () => {
-      if (!userEmail) return;
-
-      try {
-        setLoading(true);
-        const response = await api.get(`/usuarios/${userEmail}/BuscarPrateleiras`);
-        setPrateleiras(response.data);
-      } catch (err: any) {
-        setError(err.response?.data?.message || "Erro ao carregar prateleiras");
-      } finally {
-        setLoading(false);
-      }
+        try {
+            setLoading(true);
+            const response = await api.get("/prateleiras/minhas-prateleiras");
+            setPrateleiras(response.data);
+        } catch (err: any) {
+            setError(err.response?.data?.message || "Erro ao carregar prateleiras");
+        } finally {
+            setLoading(false);
+        }
     };
 
     carregarPrateleiras();
-  }, [userEmail]);
+}, []);
 
-  const handleToggleProdutos = (prateleiraId: number) => {
-    setExpandedPrateleira(expandedPrateleira === prateleiraId ? null : prateleiraId);
-  };
+const handleToggleProdutos = (prateleiraId: number) => {
+  setExpandedPrateleira(expandedPrateleira === prateleiraId ? null : prateleiraId);
+};
 
-  const handleAdicionarPrateleira = async () => {
-    if (!userEmail) return;
-
+const handleAdicionarPrateleira = async () => {
     try {
-      const novaPrateleira = { nome: `Prateleira ${prateleiras.length + 1}` };
-      const usuarioId = localStorage.getItem('usuarioId');
-      
-      if (!usuarioId) {
-        throw new Error("ID do usuário não encontrado");
-      }
-
-      const response = await api.post(`/prateleiras/cadastrar/${usuarioId}`, novaPrateleira);
-      setPrateleiras([...prateleiras, response.data]);
+        const novaPrateleira = { nome: `Prateleira ${prateleiras.length + 1}` };
+        const response = await api.post("/prateleiras/cadastrar", novaPrateleira);
+        setPrateleiras([...prateleiras, response.data]);
     } catch (err: any) {
-      setError(err.message || err.response?.data?.message || "Erro ao adicionar prateleira");
+        setError(err.message || err.response?.data?.message || "Erro ao adicionar prateleira");
     }
-  };
+};
 
   if (loading) return <div className="loading">Carregando...</div>;
 
@@ -81,7 +71,7 @@ const Home = () => {
       <header className="Cabecalho">
         <h1>AproveiteBem</h1>
         <div className="header-actions">
-          <Link to="/carrinho" className="carrinho-icon">
+          <Link to="/listaCompra" className="carrinho-icon">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
               <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
               <line x1="3" y1="6" x2="21" y2="6"></line>
@@ -122,7 +112,7 @@ const Home = () => {
               className={`prateleira-card ${expandedPrateleira === prateleira.id ? 'expanded' : ''}`}
             >
               <div className="prateleira-header">
-                <h3>{prateleira.nome || `Prateleira ${prateleira.id}`}</h3>
+                <h3>{`Prateleira ${prateleira.id}`}</h3>
                 <button 
                   className="expand-btn"
                   onClick={() => handleToggleProdutos(prateleira.id)}

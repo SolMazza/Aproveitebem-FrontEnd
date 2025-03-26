@@ -4,6 +4,9 @@ import "./Style.css";
 import api from "../../Api/api";
 import { Produto } from "../../interface/PrateleiraData";
 
+
+
+
 const AdicionarProduto = () => {
   const { prateleiraId } = useParams();
   const navigate = useNavigate();
@@ -18,38 +21,34 @@ const AdicionarProduto = () => {
 
   useEffect(() => {
     const carregarCategorias = async () => {
-      try {
-        // Simulando o ID do usuário logado
-        const usuarioId = 1;
-        const response = await api.get(`/categorias/usuario/${usuarioId}`);
-        setCategorias(response.data);
-      } catch (err: any) {
-        setError(err.response?.data?.message || "Erro ao carregar categorias");
-      }
+        try {
+            const response = await api.get("/categorias/minhas-categorias");
+            setCategorias(response.data);
+        } catch (err: any) {
+            setError(err.response?.data?.message || "Erro ao carregar categorias");
+        }
     };
 
     carregarCategorias();
-  }, []);
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+}, []);
+const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setProduto(prev => ({
-      ...prev,
-      [name]: value
+        ...prev,
+        [name]: value
     }));
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
+};
+const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
 
     try {
-      await api.post(`/prateleiras/${prateleiraId}/produtos`, produto);
-      navigate("/");
+        await api.post(`/prateleiras/${prateleiraId}/produtos`, produto);
+        navigate("/home");
     } catch (err: any) {
-      setError(err.response?.data?.message || "Erro ao adicionar produto");
+        setError(err.response?.data?.message || "Erro ao adicionar produto");
     }
-  };
+};
 
   return (
     <div className="container">
